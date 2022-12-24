@@ -1,3 +1,13 @@
+flat := -flat_namespace -undefined suppress
+twolevel := -Wl,-no_fixup_chains -undefined dynamic_lookup
+
+NAMESPACE ?= two-level
+ifeq ($(NAMESPACE),flat)
+NAMESPACE_OPTS := $(flat)
+else
+NAMESPACE_OPTS := $(twolevel)
+endif
+
 .PHONY: all clean
 
 all: main main_shared extension.bundle
@@ -15,7 +25,7 @@ libfoo1.dylib: foo.c
 	$(CC) -dynamiclib -DFOO_VERSION=1 -o $@ $<
 
 extension.bundle: extension.c libfoo2.a
-	$(CC) -o $@ -bundle -undefined dynamic_lookup extension.c libfoo2.a
+	$(CC) -o $@ -bundle $(NAMESPACE_OPTS) extension.c libfoo2.a
 
 foo2.o: foo.c
 	$(CC) -c -o $@ -DFOO_VERSION=2 $^
