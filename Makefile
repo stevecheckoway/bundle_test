@@ -1,11 +1,20 @@
 flat := -flat_namespace -undefined suppress
 twolevel := -Wl,-no_fixup_chains -undefined dynamic_lookup
+load_hidden := -load_hidden
 
 NAMESPACE ?= two-level
 ifeq ($(NAMESPACE),flat)
+$(info ** flat)
 NAMESPACE_OPTS := $(flat)
+STATIC_LIB_FLAG :=
+else ifeq ($(NAMESPACE),load-hidden)
+$(info ** load-hidden)
+NAMESPACE_OPTS := $(flat)
+STATIC_LIB_FLAG := $(load_hidden)
 else
+$(info ** two-level)
 NAMESPACE_OPTS := $(twolevel)
+STATIC_LIB_FLAG :=
 endif
 
 .PHONY: all clean
@@ -25,7 +34,7 @@ libfoo1.dylib: foo.c
 	$(CC) -dynamiclib -DFOO_VERSION=1 -o $@ $<
 
 extension.bundle: extension.c libfoo2.a
-	$(CC) -o $@ -bundle $(NAMESPACE_OPTS) extension.c libfoo2.a
+	$(CC) -o $@ -bundle $(NAMESPACE_OPTS) extension.c $(STATIC_LIB_FLAG) libfoo2.a
 
 foo2.o: foo.c
 	$(CC) -c -o $@ -DFOO_VERSION=2 $^
