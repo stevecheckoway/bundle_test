@@ -1,0 +1,6 @@
+*.bundle
+*.o
+*.dylib
+*.a
+main
+main_shared
