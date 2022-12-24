@@ -1,4 +1,7 @@
+# Bundle test
 This repo contains a test of a moderately complex interaction involving two-level namespace lookups of symbols from a loaded bundle.
+
+## Two-level namespace
 
 To build, run `make` on macOS.
 
@@ -34,3 +37,16 @@ function_in_main()
 foo_version(): 2
 ```
 
+## Flat namespace
+
+To build, first `make clean` and then `make NAMESPACE=flat`. This builds the extension with `-flat_namespace -undefined suppress` rather than `-undefined dynamic_lookup`.
+
+Running this immediately runs into problems. Both `main` and `main_shared` print
+```
+foo_version(): 1
+init()
+function_in_main()
+foo_version(): 1
+```
+
+Note that `foo_version()` from the extension ended up resolving to the version of `foo_version()` from `libfoo1.dylib` and not the version in the extension itself!
