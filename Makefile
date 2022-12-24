@@ -10,7 +10,7 @@ endif
 
 .PHONY: all clean
 
-all: main main_shared extension.bundle
+all: main main_shared extension.dylib dependent.dylib
 
 main_shared: main.c libmain.dylib libfoo1.dylib
 	$(CC) -o $@ -DENABLE_SHARED=1 main.c -L. -lmain -lfoo1
@@ -24,8 +24,11 @@ libmain.dylib: main.c libfoo1.dylib
 libfoo1.dylib: foo.c
 	$(CC) -dynamiclib -DFOO_VERSION=1 -o $@ $<
 
-extension.bundle: extension.c libfoo2.a
-	$(CC) -o $@ -bundle $(NAMESPACE_OPTS) extension.c libfoo2.a
+extension.dylib: extension.c libfoo2.a
+	$(CC) -o $@ -dynamiclib $(NAMESPACE_OPTS) extension.c libfoo2.a
+
+dependent.dylib: dependent.c extension.dylib
+	$(CC) -o $@ -dynamiclib $(NAMESPACE_OPTS) dependent.c extension.dylib
 
 foo2.o: foo.c
 	$(CC) -c -o $@ -DFOO_VERSION=2 $^
@@ -35,4 +38,4 @@ libfoo2.a: foo2.o
 	ar -cr $@ $^
 
 clean:
-	$(RM) main main_shared *.bundle *.dylib *.o *.a
+	$(RM) main main_shared *.dylib *.dylib *.o *.a
