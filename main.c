@@ -37,6 +37,8 @@ int main_implementation() {
 int main_implementation(void);
 #endif
 
+#if !LIBMAIN
 int main() {
     return main_implementation();
 }
+#endif
